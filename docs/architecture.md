@@ -43,22 +43,29 @@ flowchart LR
 
 ## Decisões de implementação
 
-Registre seu plano aqui antes de editar o código.
-
-- Decisão da camada de apresentação:
-- Decisão da camada de lógica:
-- Decisão da camada de dados:
-- Abordagem para registro de atividades:
-- Abordagem para gerenciamento de equipes:
-- Abordagem para o placar:
-- Abordagem para sugestões de treino:
+- **Apresentação:** cada tela consome a API pelo cliente compartilhado, mantém a responsabilidade de renderizar dados e estados de carregamento, vazio e erro, e não acessa o banco diretamente. Mensagens e estados de erro devem ser acessíveis.
+- **Lógica:** manter rotas Express finas; concentrar validação e regras de negócio nos serviços. Entradas inválidas, IDs malformados ou referências inexistentes devem produzir respostas 4xx intencionais, nunca erros 500 de conversão ou validação.
+- **Dados:** declarar nos modelos Mongoose os campos obrigatórios, tipos, valores permitidos e defaults exigidos pelos contratos. Manter as referências entre pessoas, equipes e atividades. O seed deve ser idempotente e preservar registros não relacionados, usando modelos e código da aplicação.
+- **Registro de atividades:** validar tipo e minutos, verificar que os IDs de pessoa e equipe são válidos e correspondem a documentos existentes, calcular pontos e data, e persistir as referências e os valores calculados.
+- **Gerenciamento de equipes:** exigir nome e mascote, usar lista vazia como default de integrantes e preservar nome, mascote e integrantes na criação e listagem.
+- **Placar:** somar pontos das atividades por equipe, ordenar do maior total para o menor e atribuir posições iniciadas em 1.
+- **Sugestões de treino:** localizar a pessoa pelo e-mail, usar a meta e atividades recentes para selecionar treinos compatíveis e explicar a recomendação em `reason`; responder com 4xx quando a pessoa não existir.
 
 ## Plano de testes
 
-Registre os comandos executados e o significado de cada falha.
+### Últimos resultados observados (2026-11-19)
 
-- Testes da camada de dados: `npm run test:data --prefix octofit-tracker/backend`
-- Testes da API: `npm run test:api --prefix octofit-tracker/backend`
-- Testes do frontend: `npm test --prefix octofit-tracker/frontend`
-- Compilação do backend: `npm run build --prefix octofit-tracker/backend`
-- Compilação do frontend: `npm run build --prefix octofit-tracker/frontend`
+- `npm test --prefix octofit-tracker/backend`: **8 falhas e 1 aprovação em 9 testes**.
+    - Dados: falharam `exige identidade e metas significativas para as pessoas usuárias`, `exige nome, mascote e lista de integrantes nas equipes`, `exige que as atividades relacionem pessoas, equipes, tipos, minutos, pontos e datas` e `define sugestões de treino com foco, duração e dificuldade`. Os schemas ainda não aplicam as validações requeridas. O teste de seed idempotente passou.
+    - API: falharam `cria e lista atividades válidas e rejeita entradas inválidas` e `cria equipes e disponibiliza seus integrantes` porque as operações ainda retornam 501; `ordena o placar pela pontuação total` porque o serviço retorna uma lista vazia; e `sugere treinos compatíveis com o padrão de atividade de cada pessoa` porque a sugestão não inclui a justificativa esperada.
+- `npm test --prefix octofit-tracker/frontend`: **15 falhas**.
+    - Falharam `exibe dados de atividades retornados pela API`, `exibe equipes, placar e sugestões de treino com conteúdo acessível` e `solicita sugestões de treino para uma pessoa específica`.
+    - Para cada uma das rotas `/activities`, `/teams`, `/leaderboard` e `/workouts`, falharam `anuncia o carregamento enquanto aguarda a API`, `exibe um estado vazio significativo` e `anuncia falhas da API em um alerta acessível`. As telas ainda exibem placeholders e não implementam o consumo e os estados da API.
+- Os comandos de compilação abaixo ainda não foram executados; não há resultado de build registrado.
+
+### Próxima ordem de verificação
+
+1. `npm run test:data --prefix octofit-tracker/backend`: validar campos obrigatórios, defaults, referências e seed idempotente.
+2. `npm run test:api --prefix octofit-tracker/backend`: validar contratos de criação/listagem, respostas 4xx, placar e recomendações após corrigir os modelos.
+3. `npm test --prefix octofit-tracker/frontend`: validar consumo da API e estados de carregamento, vazio e erro nas quatro telas.
+4. `npm run build --prefix octofit-tracker/backend` e `npm run build --prefix octofit-tracker/frontend`: verificar compilação de ambas as aplicações após os testes focados passarem.
