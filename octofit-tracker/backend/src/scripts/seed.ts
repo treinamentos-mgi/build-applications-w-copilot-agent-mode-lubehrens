@@ -5,7 +5,7 @@ import { Activity, Team, User, Workout } from '../models/index.js';
 async function upsertDemoUser(name: string, email: string, teamId: InstanceType<typeof Team>['_id'], fitnessGoal: string) {
   const previousUser = await User.findOne({ email }).select('_id team');
   if (previousUser?.team && previousUser.team.toString() !== teamId.toString()) {
-    await Team.updateOne({ _id: previousUser.team }, { $pull: { members: previousUser._id } });
+    await Team.updateOne({ _id: previousUser.team }, { $pull: { members: previousUser._id } }, { runValidators: true });
   }
   const user = await User.findOneAndUpdate(
     { email },
