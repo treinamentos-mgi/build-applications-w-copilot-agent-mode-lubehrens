@@ -43,13 +43,13 @@ flowchart LR
 
 ## Decisões de implementação
 
-- **Apresentação:** cada tela consome a API pelo cliente compartilhado, mantém a responsabilidade de renderizar dados e estados de carregamento, vazio e erro, e não acessa o banco diretamente. Mensagens e estados de erro devem ser acessíveis.
-- **Lógica:** manter rotas Express finas; concentrar validação e regras de negócio nos serviços. Entradas inválidas, IDs malformados ou referências inexistentes devem produzir respostas 4xx intencionais, nunca erros 500 de conversão ou validação.
-- **Dados:** declarar nos modelos Mongoose os campos obrigatórios, tipos, valores permitidos e defaults exigidos pelos contratos. Manter as referências entre pessoas, equipes e atividades. O seed deve ser idempotente e preservar registros não relacionados, usando modelos e código da aplicação.
-- **Registro de atividades:** validar tipo e minutos, verificar que os IDs de pessoa e equipe são válidos e correspondem a documentos existentes, calcular pontos e data, e persistir as referências e os valores calculados.
-- **Gerenciamento de equipes:** exigir nome e mascote, usar lista vazia como default de integrantes e preservar nome, mascote e integrantes na criação e listagem.
-- **Placar:** somar pontos das atividades por equipe, ordenar do maior total para o menor e atribuir posições iniciadas em 1.
-- **Sugestões de treino:** localizar a pessoa pelo e-mail, usar a meta e atividades recentes para selecionar treinos compatíveis e explicar a recomendação em `reason`; responder com 4xx quando a pessoa não existir.
+- Decisão da camada de apresentação: cada tela consome a API pelo cliente compartilhado, renderiza dados e estados de carregamento, vazio e erro, e não acessa o banco diretamente. Mensagens e estados de erro devem ser acessíveis.
+- Decisão da camada de lógica: manter rotas Express finas e concentrar validação e regras de negócio nos serviços. Entradas inválidas, IDs malformados ou referências inexistentes devem produzir respostas 4xx intencionais, nunca erros 500 de conversão ou validação.
+- Decisão da camada de dados: declarar nos modelos Mongoose os campos obrigatórios, tipos, valores permitidos e defaults exigidos pelos contratos. Manter as referências entre pessoas, equipes e atividades. O seed deve ser idempotente e preservar registros não relacionados, usando modelos e código da aplicação.
+- Abordagem para registro de atividades: validar tipo e minutos, verificar que os IDs de pessoa e equipe são válidos e correspondem a documentos existentes, calcular pontos e data, e persistir as referências e os valores calculados.
+- Abordagem para gerenciamento de equipes: exigir nome e mascote, usar lista vazia como default de integrantes e preservar nome, mascote e integrantes na criação e listagem.
+- Abordagem para o placar: somar pontos das atividades por equipe, ordenar do maior total para o menor e atribuir posições iniciadas em 1.
+- Abordagem para sugestões de treino: localizar a pessoa pelo e-mail, usar a meta e atividades recentes para selecionar treinos compatíveis e explicar a recomendação em `reason`; responder com 4xx quando a pessoa não existir.
 
 ## Plano de testes
 
